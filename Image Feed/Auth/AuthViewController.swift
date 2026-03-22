@@ -7,9 +7,15 @@
 
 import UIKit
 
+protocol AuthViewControllerDelegate: AnyObject {
+    func didAuthenticate(_ vc: AuthViewController)
+}
+
 final class AuthViewController: UIViewController {
     
     private let ShowWebViewSegueIdentifier = "ShowWebView"
+    weak var delegate: AuthViewControllerDelegate?
+    private let oauth2Service = OAuth2Service.shared
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -33,15 +39,19 @@ final class AuthViewController: UIViewController {
 
 extension AuthViewController: WebViewViewControllerDelegate {
     func webViewViewController(_ vc: WebViewViewController, didAuthenticateWithCode code: String) {
-        OAuth2Service.shared.fetchOAuthToken(code: code) { result in
+        vc.dismiss(animated: true)
+
+        oauth2Service.fetchOAuthToken(code: code) { [weak self] result in
+            guard let self = self else { return }
+
             switch result {
-            case .success(let token):
-                print("Access token получен:", token)
+            case .success:
+                self.delegate?.didAuthenticate(self)
+
             case .failure(let error):
                 print("Ошибка получения токена:", error)
             }
         }
-        vc.dismiss(animated: true)
     }
     
     func webViewViewControllerDidCancel(_ vc: WebViewViewController) {

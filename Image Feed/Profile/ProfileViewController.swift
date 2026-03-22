@@ -1,29 +1,70 @@
 //
-//  SingleImageViewController.swift
+//  ProfileViewController.swift
 //  Image Feed
 //
 //  Created by Анастасия Федотова on 16.03.2026.
 //
 
 import UIKit
+import WebKit
 
 final class ProfileViewController: UIViewController {
 
+    private enum Constants {
+        static let horizontalInset: CGFloat = 16
+        static let topInset: CGFloat = 32
+        static let avatarSize: CGFloat = 70
+        static let spacing: CGFloat = 8
+    }
+
     // MARK: - UI Elements
     
-    private let avatarImageView = UIImageView()
-    private let nameLabel = UILabel()
-    private let loginNameLabel = UILabel()
-    private let descriptionLabel = UILabel()
-    private let logoutButton = UIButton(type: .system)
+    private lazy var avatarImageView: UIImageView = {
+        let imageView = UIImageView()
+        imageView.image = UIImage(named: "avatar")
+        imageView.contentMode = .scaleAspectFill
+        return imageView
+    }()
+    
+    private lazy var nameLabel: UILabel = {
+        let label = UILabel()
+        label.text = "Екатерина Новикова"
+        label.textColor = .ypWhite
+        label.font = .boldSystemFont(ofSize: 23)
+        return label
+    }()
+    
+    private lazy var loginNameLabel: UILabel = {
+        let label = UILabel()
+        label.text = "@ekaterina_nov"
+        label.textColor = .ypGray
+        label.font = .systemFont(ofSize: 13)
+        return label
+    }()
+    
+    private lazy var descriptionLabel: UILabel = {
+        let label = UILabel()
+        label.text = "Hello, world!"
+        label.textColor = .ypWhite
+        label.font = .systemFont(ofSize: 13)
+        return label
+    }()
+    
+    private lazy var logoutButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.setImage(UIImage(named: "logout_button"), for: .normal)
+        button.tintColor = .ypRed
+        button.addTarget(self, action: #selector(didTapLogoutButton), for: .touchUpInside)
+        return button
+    }()
 
     // MARK: - Lifecycle
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        view.backgroundColor = .ypBlack
         setupViews()
-        setupAppearance()
         setupConstraints()
     }
 
@@ -36,55 +77,34 @@ final class ProfileViewController: UIViewController {
         }
     }
 
-    private func setupAppearance() {
-        view.backgroundColor = .ypBlack
 
-        avatarImageView.image = UIImage(named: "avatar")
-        avatarImageView.contentMode = .scaleAspectFill
-
-        nameLabel.text = "Екатерина Новикова"
-        nameLabel.textColor = .ypWhite
-        nameLabel.font = .boldSystemFont(ofSize: 23)
-
-        loginNameLabel.text = "@ekaterina_nov"
-        loginNameLabel.textColor = .ypGray
-        loginNameLabel.font = .systemFont(ofSize: 13)
-
-        descriptionLabel.text = "Hello, world!"
-        descriptionLabel.textColor = .ypWhite
-        descriptionLabel.font = .systemFont(ofSize: 13)
-
-        logoutButton.setImage(UIImage(named: "logout_button"), for: .normal)
-        logoutButton.tintColor = .ypRed
-        logoutButton.addTarget(self, action: #selector(didTapLogoutButton), for: .touchUpInside)
-    }
 
     private func setupConstraints() {
         let safeArea = view.safeAreaLayoutGuide
 
         NSLayoutConstraint.activate([
             // Avatar
-            avatarImageView.leadingAnchor.constraint(equalTo: safeArea.leadingAnchor, constant: 16),
-            avatarImageView.topAnchor.constraint(equalTo: safeArea.topAnchor, constant: 32),
-            avatarImageView.widthAnchor.constraint(equalToConstant: 70),
+            avatarImageView.leadingAnchor.constraint(equalTo: safeArea.leadingAnchor, constant: Constants.horizontalInset),
+            avatarImageView.topAnchor.constraint(equalTo: safeArea.topAnchor, constant: Constants.topInset),
+            avatarImageView.widthAnchor.constraint(equalToConstant: Constants.avatarSize),
             avatarImageView.heightAnchor.constraint(equalTo: avatarImageView.widthAnchor),
 
             // Name
             nameLabel.leadingAnchor.constraint(equalTo: avatarImageView.leadingAnchor),
-            nameLabel.topAnchor.constraint(equalTo: avatarImageView.bottomAnchor, constant: 8),
+            nameLabel.topAnchor.constraint(equalTo: avatarImageView.bottomAnchor, constant: Constants.spacing),
 
             // Login
             loginNameLabel.leadingAnchor.constraint(equalTo: nameLabel.leadingAnchor),
             loginNameLabel.trailingAnchor.constraint(equalTo: nameLabel.trailingAnchor),
-            loginNameLabel.topAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant: 8),
+            loginNameLabel.topAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant: Constants.spacing),
 
             // Description
             descriptionLabel.leadingAnchor.constraint(equalTo: nameLabel.leadingAnchor),
             descriptionLabel.trailingAnchor.constraint(equalTo: nameLabel.trailingAnchor),
-            descriptionLabel.topAnchor.constraint(equalTo: loginNameLabel.bottomAnchor, constant: 8),
+            descriptionLabel.topAnchor.constraint(equalTo: loginNameLabel.bottomAnchor, constant: Constants.spacing),
 
             // Logout button
-            logoutButton.trailingAnchor.constraint(equalTo: safeArea.trailingAnchor, constant: -16),
+            logoutButton.trailingAnchor.constraint(equalTo: safeArea.trailingAnchor, constant: -Constants.horizontalInset),
             logoutButton.centerYAnchor.constraint(equalTo: avatarImageView.centerYAnchor),
             logoutButton.widthAnchor.constraint(equalToConstant: 44),
             logoutButton.heightAnchor.constraint(equalToConstant: 44)
@@ -95,5 +115,25 @@ final class ProfileViewController: UIViewController {
     
     @objc private func didTapLogoutButton() {
         print("Logout tapped")
+
+        let storage = OAuth2TokenStorage()
+        storage.token = nil
+
+        HTTPCookieStorage.shared.removeCookies(since: Date.distantPast)
+        WKWebsiteDataStore.default().fetchDataRecords(ofTypes: WKWebsiteDataStore.allWebsiteDataTypes()) { records in
+            records.forEach { record in
+                WKWebsiteDataStore.default().removeData(ofTypes: record.dataTypes, for: [record], completionHandler: {})
+            }
+        }
+
+        guard let window = UIApplication.shared.windows.first(where: { $0.isKeyWindow }) else {
+            assertionFailure("Invalid window configuration")
+            return
+        }
+
+        let splashViewController = UIStoryboard(name: "Main", bundle: .main)
+            .instantiateViewController(withIdentifier: "SplashViewController")
+
+        window.rootViewController = splashViewController
     }
 }
