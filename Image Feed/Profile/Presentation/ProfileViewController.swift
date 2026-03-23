@@ -7,6 +7,7 @@
 
 import UIKit
 import WebKit
+import Kingfisher
 
 final class ProfileViewController: UIViewController {
 
@@ -19,10 +20,14 @@ final class ProfileViewController: UIViewController {
 
     // MARK: - UI Elements
     
+    private var profileImageServiceObserver: NSObjectProtocol?
+    
     private lazy var avatarImageView: UIImageView = {
         let imageView = UIImageView()
         imageView.image = UIImage(named: "avatar")
         imageView.contentMode = .scaleAspectFill
+        imageView.layer.cornerRadius = Constants.avatarSize / 2
+        imageView.clipsToBounds = true
         return imageView
     }()
     
@@ -66,6 +71,39 @@ final class ProfileViewController: UIViewController {
         view.backgroundColor = .ypBlack
         setupViews()
         setupConstraints()
+        
+        if let profile = ProfileService.shared.profile {
+            updateProfileDetails(profile: profile)
+        }
+        
+        profileImageServiceObserver = NotificationCenter.default
+            .addObserver(
+                forName: ProfileImageService.didChangeNotification,
+                object: nil,
+                queue: .main
+            ) { [weak self] _ in
+                guard let self = self else { return }
+                self.updateAvatar()
+            }
+        
+        updateAvatar()
+    }
+    
+    // MARK: - Update UI
+    
+    private func updateProfileDetails(profile: Profile) {
+        nameLabel.text = profile.name
+        loginNameLabel.text = profile.loginName
+        descriptionLabel.text = profile.bio
+    }
+    
+    private func updateAvatar() {
+        guard
+            let profileImageURL = ProfileImageService.shared.avatarURL,
+            let url = URL(string: profileImageURL)
+        else { return }
+        
+        avatarImageView.kf.setImage(with: url, placeholder: UIImage(named: "avatar"))
     }
 
     // MARK: - Setup
