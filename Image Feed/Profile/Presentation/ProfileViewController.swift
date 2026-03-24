@@ -169,9 +169,6 @@ final class ProfileViewController: UIViewController {
             return
         }
 
-        let splashViewController = UIStoryboard(name: "Main", bundle: .main)
-            .instantiateViewController(withIdentifier: "SplashViewController")
-
-        window.rootViewController = splashViewController
+        window.rootViewController = SplashViewController()
     }
 }

@@ -23,8 +23,9 @@ struct ProfileImage: Codable {
     let large: String?
 }
 
-// MARK: - ProfileImageService
 final class ProfileImageService {
+    
+    // MARK: - Properties
     
     static let shared = ProfileImageService()
     static let didChangeNotification = Notification.Name(rawValue: "ProfileImageProviderDidChange")
@@ -37,6 +38,8 @@ final class ProfileImageService {
     
     private(set) var avatarURL: String?
     
+    // MARK: - Private Methods
+    
     private func makeImageRequest(username: String, token: String) -> URLRequest? {
         guard let url = URL(string: "https://api.unsplash.com/users/\(username)") else { return nil }
         var request = URLRequest(url: url)
@@ -44,6 +47,8 @@ final class ProfileImageService {
         request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         return request
     }
+    
+    // MARK: - Public Methods
     
     func fetchProfileImageURL(username: String, _ completion: @escaping (Result<String, Error>) -> Void) {
         assert(Thread.isMainThread)

@@ -7,6 +7,7 @@
 
 import Foundation
 
+// MARK: - ProfileResult
 struct ProfileResult: Codable {
     let username: String
     let first_name: String?
@@ -14,6 +15,7 @@ struct ProfileResult: Codable {
     let bio: String?
 }
 
+// MARK: - Profile
 struct Profile {
     let username: String
     let name: String
@@ -23,6 +25,8 @@ struct Profile {
 
 final class ProfileService {
     
+    // MARK: - Properties
+    
     static let shared = ProfileService()
     private init() {}
     
@@ -31,6 +35,8 @@ final class ProfileService {
     private var lastToken: String?
     private(set) var profile: Profile?
     
+    // MARK: - Private Methods
+    
     private func makeProfileRequest(token: String) -> URLRequest? {
         guard let url = URL(string: "https://api.unsplash.com/me") else { return nil }
         var request = URLRequest(url: url)
@@ -38,6 +44,8 @@ final class ProfileService {
         request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         return request
     }
+    
+    // MARK: - Public Methods
     
     func fetchProfile(_ token: String, completion: @escaping (Result<Profile, Error>) -> Void) {
         assert(Thread.isMainThread)

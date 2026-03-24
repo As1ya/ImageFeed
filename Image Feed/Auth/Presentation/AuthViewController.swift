@@ -9,14 +9,17 @@ import UIKit
 import ProgressHUD
 
 protocol AuthViewControllerDelegate: AnyObject {
-    func didAuthenticate(_ vc: AuthViewController)
+    func authViewController(_ vc: AuthViewController, didAuthenticateWithCode code: String)
 }
 
 final class AuthViewController: UIViewController {
     
+    // MARK: - Properties
+    
     private let ShowWebViewSegueIdentifier = "ShowWebView"
     weak var delegate: AuthViewControllerDelegate?
-    private let oauth2Service = OAuth2Service.shared
+    
+    // MARK: - Lifecycle
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -30,6 +33,8 @@ final class AuthViewController: UIViewController {
         navigationItem.backBarButtonItem?.tintColor = UIColor(named: "ypBlack")
     }
     
+    // MARK: - Navigation
+    
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == ShowWebViewSegueIdentifier,
            let webVC = segue.destination as? WebViewViewController {
@@ -38,32 +43,11 @@ final class AuthViewController: UIViewController {
     }
 }
 
+// MARK: - WebViewViewControllerDelegate
+
 extension AuthViewController: WebViewViewControllerDelegate {
     func webViewViewController(_ vc: WebViewViewController, didAuthenticateWithCode code: String) {
-        navigationController?.popViewController(animated: true)
-        UIBlockingProgressHUD.show()
-        
-        oauth2Service.fetchOAuthToken(code: code) { [weak self] result in
-            UIBlockingProgressHUD.dismiss()
-            guard let self = self else { return }
-
-            switch result {
-            case .success:
-                self.delegate?.didAuthenticate(self)
-
-            case .failure(let error):
-                print("[AuthViewController]: fetchOAuthToken_failure - \(error)")
-                
-                let alert = UIAlertController(
-                    title: "Что-то пошло не так",
-                    message: "Не удалось войти в систему",
-                    preferredStyle: .alert
-                )
-                let action = UIAlertAction(title: "Ок", style: .default, handler: nil)
-                alert.addAction(action)
-                self.present(alert, animated: true)
-            }
-        }
+        delegate?.authViewController(self, didAuthenticateWithCode: code)
     }
     
     func webViewViewControllerDidCancel(_ vc: WebViewViewController) {

@@ -7,6 +7,8 @@
 
 import Foundation
 
+// MARK: - NetworkError
+
 enum NetworkError: Error {
     case httpStatusCode(Int)
     case urlRequestError(Error)
@@ -15,7 +17,12 @@ enum NetworkError: Error {
     case decodingError(Error)
 }
 
+// MARK: - URLSession Extension
+
 extension URLSession {
+    
+    // MARK: - Public Methods
+    
     func data(
         for request: URLRequest,
         completion: @escaping (Result<Data, Error>) -> Void
