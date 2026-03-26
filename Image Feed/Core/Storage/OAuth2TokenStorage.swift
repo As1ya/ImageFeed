@@ -1,0 +1,24 @@
+//
+//  OAuth2TokenStorage.swift
+//  Image Feed
+//
+//  Created by Анастасия Федотова on 18.03.2026.
+//
+
+import Foundation
+import SwiftKeychainWrapper
+
+final class OAuth2TokenStorage {
+    private let tokenKey = "OAuthToken"
+    
+    var token: String? {
+        get { KeychainWrapper.standard.string(forKey: tokenKey) }
+        set {
+            if let newValue = newValue {
+                KeychainWrapper.standard.set(newValue, forKey: tokenKey)
+            } else {
+                KeychainWrapper.standard.removeObject(forKey: tokenKey)
+            }
+        }
+    }
+}

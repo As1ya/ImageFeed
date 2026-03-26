@@ -19,11 +19,14 @@ protocol WebViewViewControllerDelegate: AnyObject {
 
 final class WebViewViewController: UIViewController {
     
-    @IBOutlet weak var webView: WKWebView!
+    // MARK: - Properties
     
+    @IBOutlet weak var webView: WKWebView!
     @IBOutlet weak var progressView: UIProgressView!
     
     weak var delegate: WebViewViewControllerDelegate?
+    
+    // MARK: - Overrides
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)

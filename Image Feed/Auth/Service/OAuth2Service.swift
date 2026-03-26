@@ -14,6 +14,8 @@ final class OAuth2Service {
     
     private let urlSession = URLSession.shared
     private let tokenStorage = OAuth2TokenStorage()
+    private var task: URLSessionTask?
+    private var lastCode: String?
     
     private func makeTokenRequest(code: String) -> URLRequest? {
         guard let url = URL(string: "https://unsplash.com/oauth/token") else { return nil }
@@ -37,26 +39,33 @@ final class OAuth2Service {
     }
     
     func fetchOAuthToken(code: String, completion: @escaping (Result<String, Error>) -> Void) {
+        assert(Thread.isMainThread)
+        if lastCode == code { return }
+        task?.cancel()
+        lastCode = code
+        
         guard let request = makeTokenRequest(code: code) else {
             completion(.failure(NetworkError.invalidRequest))
             return
         }
         
-        urlSession.data(for: request) { [weak self] result in
-            switch result {
-            case .success(let data):
-                do {
-                    let response = try JSONDecoder().decode(OAuthTokenResponseBody.self, from: data)
-                    self?.tokenStorage.token = response.accessToken
+        var task: URLSessionTask?
+        task = urlSession.objectTask(for: request) { [weak self] (result: Result<OAuthTokenResponseBody, Error>) in
+            DispatchQueue.main.async {
+                guard let self = self, self.task === task else { return }
+                self.task = nil
+                self.lastCode = nil
+                
+                switch result {
+                case .success(let response):
+                    self.tokenStorage.token = response.accessToken
                     completion(.success(response.accessToken))
-                } catch {
-                    print("Ошибка декодирования OAuthTokenResponseBody:", error)
-                    completion(.failure(NetworkError.decodingError(error)))
+                case .failure(let error):
+                    print("[OAuth2Service]: fetchOAuthToken - \(error.localizedDescription)")
+                    completion(.failure(error))
                 }
-            case .failure(let error):
-                print("Ошибка запроса OAuth2:", error)
-                completion(.failure(error))
             }
         }
+        self.task = task
     }
 }
