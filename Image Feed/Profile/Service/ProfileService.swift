@@ -7,22 +7,6 @@
 
 import Foundation
 
-// MARK: - ProfileResult
-struct ProfileResult: Codable {
-    let username: String
-    let first_name: String?
-    let last_name: String?
-    let bio: String?
-}
-
-// MARK: - Profile
-struct Profile {
-    let username: String
-    let name: String
-    let loginName: String
-    let bio: String?
-}
-
 final class ProfileService {
     
     // MARK: - Properties
@@ -59,10 +43,13 @@ final class ProfileService {
             return
         }
         
-        let task = urlSession.objectTask(for: request) { [weak self] (result: Result<ProfileResult, Error>) in
+        var task: URLSessionTask?
+        task = urlSession.objectTask(for: request) { [weak self] (result: Result<ProfileResult, Error>) in
             DispatchQueue.main.async {
-                self?.task = nil
-                self?.lastToken = nil
+                guard let self = self, self.task === task else { return }
+                self.task = nil
+                self.lastToken = nil
+                
                 switch result {
                 case .success(let profileResult):
                     let firstName = profileResult.first_name ?? ""
@@ -76,7 +63,7 @@ final class ProfileService {
                         loginName: loginName,
                         bio: profileResult.bio
                     )
-                    self?.profile = profile
+                    self.profile = profile
                     completion(.success(profile))
                 case .failure(let error):
                     print("[ProfileService]: fetchProfile - \(error.localizedDescription)")

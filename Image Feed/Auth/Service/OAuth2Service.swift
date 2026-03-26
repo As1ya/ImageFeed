@@ -40,11 +40,7 @@ final class OAuth2Service {
     
     func fetchOAuthToken(code: String, completion: @escaping (Result<String, Error>) -> Void) {
         assert(Thread.isMainThread)
-        guard lastCode != code else {
-            completion(.failure(NetworkError.invalidRequest))
-            return
-        }
-
+        if lastCode == code { return }
         task?.cancel()
         lastCode = code
         
@@ -53,14 +49,16 @@ final class OAuth2Service {
             return
         }
         
-        let task = urlSession.objectTask(for: request) { [weak self] (result: Result<OAuthTokenResponseBody, Error>) in
+        var task: URLSessionTask?
+        task = urlSession.objectTask(for: request) { [weak self] (result: Result<OAuthTokenResponseBody, Error>) in
             DispatchQueue.main.async {
-                self?.task = nil
-                self?.lastCode = nil
+                guard let self = self, self.task === task else { return }
+                self.task = nil
+                self.lastCode = nil
                 
                 switch result {
                 case .success(let response):
-                    self?.tokenStorage.token = response.accessToken
+                    self.tokenStorage.token = response.accessToken
                     completion(.success(response.accessToken))
                 case .failure(let error):
                     print("[OAuth2Service]: fetchOAuthToken - \(error.localizedDescription)")

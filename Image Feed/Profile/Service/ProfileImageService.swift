@@ -7,22 +7,6 @@
 
 import Foundation
 
-// MARK: - UserResult
-struct UserResult: Codable {
-    let profileImage: ProfileImage?
-    
-    enum CodingKeys: String, CodingKey {
-        case profileImage = "profile_image"
-    }
-}
-
-// MARK: - ProfileImage
-struct ProfileImage: Codable {
-    let small: String?
-    let medium: String?
-    let large: String?
-}
-
 final class ProfileImageService {
     
     // MARK: - Properties
@@ -67,15 +51,17 @@ final class ProfileImageService {
             return
         }
         
-        let task = urlSession.objectTask(for: request) { [weak self] (result: Result<UserResult, Error>) in
+        var task: URLSessionTask?
+        task = urlSession.objectTask(for: request) { [weak self] (result: Result<UserResult, Error>) in
             DispatchQueue.main.async {
-                self?.task = nil
-                self?.lastUsername = nil
+                guard let self = self, self.task === task else { return }
+                self.task = nil
+                self.lastUsername = nil
                 
                 switch result {
                 case .success(let userResult):
                     if let avatarURL = userResult.profileImage?.large {
-                        self?.avatarURL = avatarURL
+                        self.avatarURL = avatarURL
                         completion(.success(avatarURL))
                         
                         NotificationCenter.default.post(

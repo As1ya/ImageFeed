@@ -22,7 +22,6 @@ final class WebViewViewController: UIViewController {
     // MARK: - Properties
     
     @IBOutlet weak var webView: WKWebView!
-    
     @IBOutlet weak var progressView: UIProgressView!
     
     weak var delegate: WebViewViewControllerDelegate?

@@ -29,6 +29,10 @@
 		818572122F69CC7B009DE15D /* WebViewViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 818572112F69CC79009DE15D /* WebViewViewController.swift */; };
 		81B6B62E2F72E94F00E1ECD9 /* SwiftKeychainWrapper in Frameworks */ = {isa = PBXBuildFile; productRef = 81B6B62D2F72E94F00E1ECD9 /* SwiftKeychainWrapper */; };
 		81B6B6302F72F67400E1ECD9 /* TabBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81B6B62F2F72F67000E1ECD9 /* TabBarController.swift */; };
+		81B6B63F2F74001700E1ECD9 /* Profile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81B6B63A2F74001700E1ECD9 /* Profile.swift */; };
+		81B6B6402F74001700E1ECD9 /* ProfileResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81B6B63C2F74001700E1ECD9 /* ProfileResult.swift */; };
+		81B6B6412F74001700E1ECD9 /* ProfileImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81B6B63B2F74001700E1ECD9 /* ProfileImage.swift */; };
+		81B6B6422F74001700E1ECD9 /* UserResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81B6B63D2F74001700E1ECD9 /* UserResult.swift */; };
 		8470A1BA4283FAD0B891EB6A /* ProfileService.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF77A26B1839A168A67651B1 /* ProfileService.swift */; };
 		8F83109D28E459BD00BA471F /* ProfileViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F83109C28E459BD00BA471F /* ProfileViewController.swift */; };
 /* End PBXBuildFile section */
@@ -55,6 +59,10 @@
 		8185720F2F69CAED009DE15D /* AuthViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthViewController.swift; sourceTree = "<group>"; };
 		818572112F69CC79009DE15D /* WebViewViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebViewViewController.swift; sourceTree = "<group>"; };
 		81B6B62F2F72F67000E1ECD9 /* TabBarController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabBarController.swift; sourceTree = "<group>"; };
+		81B6B63A2F74001700E1ECD9 /* Profile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Profile.swift; sourceTree = "<group>"; };
+		81B6B63B2F74001700E1ECD9 /* ProfileImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileImage.swift; sourceTree = "<group>"; };
+		81B6B63C2F74001700E1ECD9 /* ProfileResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileResult.swift; sourceTree = "<group>"; };
+		81B6B63D2F74001700E1ECD9 /* UserResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserResult.swift; sourceTree = "<group>"; };
 		8F83109C28E459BD00BA471F /* ProfileViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileViewController.swift; sourceTree = "<group>"; };
 		AF77A26B1839A168A67651B1 /* ProfileService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ProfileService.swift; path = ../Service/ProfileService.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -198,9 +206,21 @@
 			path = Auth;
 			sourceTree = "<group>";
 		};
+		81B6B63E2F74001700E1ECD9 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				81B6B63A2F74001700E1ECD9 /* Profile.swift */,
+				81B6B63B2F74001700E1ECD9 /* ProfileImage.swift */,
+				81B6B63C2F74001700E1ECD9 /* ProfileResult.swift */,
+				81B6B63D2F74001700E1ECD9 /* UserResult.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
 		8F83109B28E459A800BA471F /* Profile */ = {
 			isa = PBXGroup;
 			children = (
+				81B6B63E2F74001700E1ECD9 /* Models */,
 				6EF0D947D551CE844597C0E6 /* Presentation */,
 				A3DFC47F65390CC93989B3AC /* Service */,
 			);
@@ -339,6 +359,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				818572122F69CC7B009DE15D /* WebViewViewController.swift in Sources */,
+				81B6B63F2F74001700E1ECD9 /* Profile.swift in Sources */,
+				81B6B6402F74001700E1ECD9 /* ProfileResult.swift in Sources */,
+				81B6B6412F74001700E1ECD9 /* ProfileImage.swift in Sources */,
+				81B6B6422F74001700E1ECD9 /* UserResult.swift in Sources */,
 				813A26B62F6AD94E00948314 /* URLSession+data.swift in Sources */,
 				812BEDA82F71BBB4007CAD7C /* UIBlockingProgressHUD.swift in Sources */,
 				7D9CFA4328DDEE7F00D971A7 /* AppDelegate.swift in Sources */,
