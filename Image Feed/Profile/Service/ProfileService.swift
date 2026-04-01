@@ -73,4 +73,11 @@ final class ProfileService {
         }
         self.task = task
     }
+    
+    func clean() {
+        profile = nil
+        task?.cancel()
+        task = nil
+        lastToken = nil
+    }
 }
