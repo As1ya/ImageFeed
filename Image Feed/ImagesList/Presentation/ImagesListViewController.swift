@@ -39,7 +39,7 @@ final class ImagesListViewController: UIViewController {
                 object: nil,
                 queue: .main
             ) { [weak self] _ in
-                guard let self = self else { return }
+                guard let self else { return }
                 self.updateTableViewAnimated()
             }
         
@@ -72,7 +72,7 @@ final class ImagesListViewController: UIViewController {
 // MARK: - UITableViewDataSource
 extension ImagesListViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return photos.count
+        photos.count
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -114,10 +114,7 @@ extension ImagesListViewController {
         cell.cellImage.kf.setImage(
             with: url,
             placeholder: UIImage(named: "Stub")
-        ) { [weak self] _ in
-            guard let self = self else { return }
-            self.tableView.reloadRows(at: [indexPath], with: .automatic)
-        }
+        )
         
         if let createdAt = photo.createdAt {
             cell.dateLabel.text = dateFormatter.string(from: createdAt)
@@ -159,21 +156,21 @@ extension ImagesListViewController: ImagesListCellDelegate {
         guard let indexPath = tableView.indexPath(for: cell) else { return }
         let photo = photos[indexPath.row]
         
-        UIBlockingProgressHUD.show()
+        cell.setIsLoading(true)
         
         imagesListService.changeLike(photoId: photo.id, isLike: !photo.isLiked) { [weak self] result in
-            guard let self = self else { return }
+            guard let self else { return }
             
             switch result {
             case .success:
                 self.photos = self.imagesListService.photos
                 cell.setIsLiked(self.photos[indexPath.row].isLiked)
-                UIBlockingProgressHUD.dismiss()
-            case .failure(let error):
-                UIBlockingProgressHUD.dismiss()
+                cell.setIsLoading(false)
+            case .failure:
+                cell.setIsLoading(false)
                 let alert = UIAlertController(
                     title: "Что-то пошло не так(",
-                    message: "Не удалось изменить лайк\n\(error.localizedDescription)",
+                    message: "Попробуйте еще раз",
                     preferredStyle: .alert
                 )
                 let okAction = UIAlertAction(title: "ОК", style: .default)

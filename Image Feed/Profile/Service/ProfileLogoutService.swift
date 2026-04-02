@@ -42,14 +42,18 @@ final class ProfileLogoutService {
    }
     
     private func cleanAppData() {
-        OAuth2TokenStorage().token = nil
+        OAuth2TokenStorage.shared.token = nil
         ProfileService.shared.clean()
         ProfileImageService.shared.clean()
         ImagesListService.shared.clean()
     }
     
     private func switchToSplash() {
-        guard let window = UIApplication.shared.windows.first(where: { $0.isKeyWindow }) else {
+        guard let window = UIApplication.shared.connectedScenes
+            .compactMap({ $0 as? UIWindowScene })
+            .flatMap({ $0.windows })
+            .first(where: { $0.isKeyWindow })
+        else {
             assertionFailure("Invalid Configuration")
             return
         }

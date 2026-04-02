@@ -21,6 +21,27 @@ final class ImagesListCell: UITableViewCell {
     @IBOutlet weak var likeButton: UIButton!
     @IBOutlet weak var dateLabel: UILabel!
     
+    private lazy var activityIndicator: UIActivityIndicatorView = {
+        let indicator = UIActivityIndicatorView(style: .medium)
+        indicator.color = .ypGray
+        indicator.hidesWhenStopped = true
+        indicator.translatesAutoresizingMaskIntoConstraints = false
+        return indicator
+    }()
+    
+    override func awakeFromNib() {
+        super.awakeFromNib()
+        setupActivityIndicator()
+    }
+    
+    private func setupActivityIndicator() {
+        contentView.addSubview(activityIndicator)
+        NSLayoutConstraint.activate([
+            activityIndicator.centerXAnchor.constraint(equalTo: likeButton.centerXAnchor),
+            activityIndicator.centerYAnchor.constraint(equalTo: likeButton.centerYAnchor)
+        ])
+    }
+    
     override func prepareForReuse() {
         super.prepareForReuse()
         
@@ -32,7 +53,17 @@ final class ImagesListCell: UITableViewCell {
     }
     
     func setIsLiked(_ isLiked: Bool) {
-        let likeImage = isLiked ? UIImage(named: "Favourites_Active") : UIImage(named: "Favourites_No_Active")
+        let likeImage = isLiked ? UIImage(resource: .favouritesActive) : UIImage(resource: .favouritesNoActive)
         likeButton.setImage(likeImage, for: .normal)
+    }
+    
+    func setIsLoading(_ isLoading: Bool) {
+        if isLoading {
+            activityIndicator.startAnimating()
+            likeButton.isHidden = true
+        } else {
+            activityIndicator.stopAnimating()
+            likeButton.isHidden = false
+        }
     }
 }

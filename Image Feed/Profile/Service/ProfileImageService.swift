@@ -12,7 +12,7 @@ final class ProfileImageService {
     // MARK: - Properties
     
     static let shared = ProfileImageService()
-    static let didChangeNotification = Notification.Name(rawValue: "ProfileImageProviderDidChange")
+    static let didChangeNotification = Notification.Name("ProfileImageProviderDidChange")
     
     private init() {}
     
@@ -41,7 +41,7 @@ final class ProfileImageService {
         task?.cancel()
         lastUsername = username
         
-        guard let token = OAuth2TokenStorage().token else {
+        guard let token = OAuth2TokenStorage.shared.token else {
             completion(.failure(NetworkError.invalidRequest))
             return
         }
@@ -53,30 +53,28 @@ final class ProfileImageService {
         
         var task: URLSessionTask?
         task = urlSession.objectTask(for: request) { [weak self] (result: Result<UserResult, Error>) in
-            DispatchQueue.main.async {
-                guard let self = self, self.task === task else { return }
-                self.task = nil
-                self.lastUsername = nil
-                
-                switch result {
-                case .success(let userResult):
-                    if let avatarURL = userResult.profileImage?.large {
-                        self.avatarURL = avatarURL
-                        completion(.success(avatarURL))
-                        
-                        NotificationCenter.default.post(
-                            name: ProfileImageService.didChangeNotification,
-                            object: self,
-                            userInfo: ["URL": avatarURL]
-                        )
-                    } else {
-                        print("[ProfileImageService]: fetchProfileImageURL - missing small avatar URL")
-                        completion(.failure(NetworkError.invalidRequest))
-                    }
-                case .failure(let error):
-                    print("[ProfileImageService]: fetchProfileImageURL - \(error.localizedDescription)")
-                    completion(.failure(error))
+            guard let self, self.task === task else { return }
+            self.task = nil
+            self.lastUsername = nil
+            
+            switch result {
+            case .success(let userResult):
+                if let avatarURL = userResult.profileImage?.large {
+                    self.avatarURL = avatarURL
+                    completion(.success(avatarURL))
+                    
+                    NotificationCenter.default.post(
+                        name: ProfileImageService.didChangeNotification,
+                        object: self,
+                        userInfo: ["URL": avatarURL]
+                    )
+                } else {
+                    print("[ProfileImageService]: fetchProfileImageURL - missing small avatar URL")
+                    completion(.failure(NetworkError.invalidRequest))
                 }
+            case .failure(let error):
+                print("[ProfileImageService]: fetchProfileImageURL - \(error.localizedDescription)")
+                completion(.failure(error))
             }
         }
         self.task = task
