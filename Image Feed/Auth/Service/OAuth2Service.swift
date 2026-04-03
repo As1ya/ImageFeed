@@ -13,7 +13,7 @@ final class OAuth2Service {
     private init() {}
     
     private let urlSession = URLSession.shared
-    private let tokenStorage = OAuth2TokenStorage()
+    private let tokenStorage = OAuth2TokenStorage.shared
     private var task: URLSessionTask?
     private var lastCode: String?
     
@@ -51,19 +51,17 @@ final class OAuth2Service {
         
         var task: URLSessionTask?
         task = urlSession.objectTask(for: request) { [weak self] (result: Result<OAuthTokenResponseBody, Error>) in
-            DispatchQueue.main.async {
-                guard let self = self, self.task === task else { return }
-                self.task = nil
-                self.lastCode = nil
-                
-                switch result {
-                case .success(let response):
-                    self.tokenStorage.token = response.accessToken
-                    completion(.success(response.accessToken))
-                case .failure(let error):
-                    print("[OAuth2Service]: fetchOAuthToken - \(error.localizedDescription)")
-                    completion(.failure(error))
-                }
+            guard let self, self.task === task else { return }
+            self.task = nil
+            self.lastCode = nil
+            
+            switch result {
+            case .success(let response):
+                self.tokenStorage.token = response.accessToken
+                completion(.success(response.accessToken))
+            case .failure(let error):
+                print("[OAuth2Service]: fetchOAuthToken - \(error.localizedDescription)")
+                completion(.failure(error))
             }
         }
         self.task = task

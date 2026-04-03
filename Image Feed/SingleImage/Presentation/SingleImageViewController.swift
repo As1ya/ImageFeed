@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import Kingfisher
 
 final class SingleImageViewController: UIViewController {
 
@@ -22,19 +23,31 @@ final class SingleImageViewController: UIViewController {
     
     // MARK: - Public Properties
     
-    var image: UIImage? {
-        didSet {
-            guard isViewLoaded, let image = image else { return }
-            rescaleAndCenterImageInScrollView(image: image)
-        }
-    }
+    var imageURL: URL?
+    
+    private lazy var activityIndicator: UIActivityIndicatorView = {
+        let indicator = UIActivityIndicatorView(style: .large)
+        indicator.color = .white // Assuming Image Feed dark theme
+        indicator.hidesWhenStopped = true
+        indicator.translatesAutoresizingMaskIntoConstraints = false
+        return indicator
+    }()
     
     // MARK: - Lifecycle
     
     override func viewDidLoad() {
         super.viewDidLoad()
         setupScrollView()
+        setupActivityIndicator()
         setupImage()
+    }
+    
+    private func setupActivityIndicator() {
+        view.addSubview(activityIndicator)
+        NSLayoutConstraint.activate([
+            activityIndicator.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            activityIndicator.centerYAnchor.constraint(equalTo: view.centerYAnchor)
+        ])
     }
     
     private func setupScrollView() {
@@ -44,8 +57,29 @@ final class SingleImageViewController: UIViewController {
     }
 
     private func setupImage() {
-        guard let image else { return }
-        rescaleAndCenterImageInScrollView(image: image)
+        guard let imageURL else { return }
+        UIBlockingProgressHUD.show()
+        activityIndicator.startAnimating()
+        imageView.kf.setImage(with: imageURL) { [weak self] result in
+            UIBlockingProgressHUD.dismiss()
+            self?.activityIndicator.stopAnimating()
+            guard let self = self else { return }
+            switch result {
+            case .success(let imageResult):
+                self.rescaleAndCenterImageInScrollView(image: imageResult.image)
+            case .failure:
+                self.showError()
+            }
+        }
+    }
+    
+    private func showError() {
+        let alert = UIAlertController(title: "Что-то пошло не так.", message: "Попробовать ещё раз?", preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "Не надо", style: .cancel, handler: nil))
+        alert.addAction(UIAlertAction(title: "Повторить", style: .default, handler: { [weak self] _ in
+            self?.setupImage()
+        }))
+        present(alert, animated: true, completion: nil)
     }
     
     // MARK: - IBActions

@@ -45,32 +45,37 @@ final class ProfileService {
         
         var task: URLSessionTask?
         task = urlSession.objectTask(for: request) { [weak self] (result: Result<ProfileResult, Error>) in
-            DispatchQueue.main.async {
-                guard let self = self, self.task === task else { return }
-                self.task = nil
-                self.lastToken = nil
+            guard let self, self.task === task else { return }
+            self.task = nil
+            self.lastToken = nil
+            
+            switch result {
+            case .success(let profileResult):
+                let firstName = profileResult.first_name ?? ""
+                let lastName = profileResult.last_name ?? ""
+                let name = [firstName, lastName].filter { !$0.isEmpty }.joined(separator: " ")
+                let loginName = "@\(profileResult.username)"
                 
-                switch result {
-                case .success(let profileResult):
-                    let firstName = profileResult.first_name ?? ""
-                    let lastName = profileResult.last_name ?? ""
-                    let name = [firstName, lastName].filter { !$0.isEmpty }.joined(separator: " ")
-                    let loginName = "@\(profileResult.username)"
-                    
-                    let profile = Profile(
-                        username: profileResult.username,
-                        name: name,
-                        loginName: loginName,
-                        bio: profileResult.bio
-                    )
-                    self.profile = profile
-                    completion(.success(profile))
-                case .failure(let error):
-                    print("[ProfileService]: fetchProfile - \(error.localizedDescription)")
-                    completion(.failure(error))
-                }
+                let profile = Profile(
+                    username: profileResult.username,
+                    name: name,
+                    loginName: loginName,
+                    bio: profileResult.bio
+                )
+                self.profile = profile
+                completion(.success(profile))
+            case .failure(let error):
+                print("[ProfileService]: fetchProfile - \(error.localizedDescription)")
+                completion(.failure(error))
             }
         }
         self.task = task
+    }
+    
+    func clean() {
+        profile = nil
+        task?.cancel()
+        task = nil
+        lastToken = nil
     }
 }
