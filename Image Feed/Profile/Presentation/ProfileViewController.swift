@@ -15,7 +15,7 @@ protocol ProfileViewControllerProtocol: AnyObject {
     func updateAvatar(url: URL)
 }
 
-final class ProfileViewController: UIViewController & ProfileViewControllerProtocol {
+final class ProfileViewController: UIViewController, ProfileViewControllerProtocol {
     var presenter: ProfilePresenterProtocol?
 
     func configure(_ presenter: ProfilePresenterProtocol) {

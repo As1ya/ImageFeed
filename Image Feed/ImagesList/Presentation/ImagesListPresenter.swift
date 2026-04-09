@@ -44,14 +44,7 @@ final class ImagesListPresenter: ImagesListPresenterProtocol {
         imagesListService.fetchPhotosNextPage()
     }
     
-    private func updateTableView() {
-        let oldCount = photos.count
-        let newCount = imagesListService.photos.count
-        photos = imagesListService.photos
-        if oldCount != newCount {
-            view?.updateTableViewAnimated(oldCount: oldCount, newCount: newCount)
-        }
-    }
+
     
     func photosCount() -> Int {
         return photos.count
@@ -89,6 +82,17 @@ final class ImagesListPresenter: ImagesListPresenterProtocol {
             case .failure(let error):
                 completion(.failure(error))
             }
+        }
+    }
+    
+    // MARK: - Private
+    
+    private func updateTableView() {
+        let oldCount = photos.count
+        let newCount = imagesListService.photos.count
+        photos = imagesListService.photos
+        if oldCount != newCount {
+            view?.updateTableViewAnimated(oldCount: oldCount, newCount: newCount)
         }
     }
 }

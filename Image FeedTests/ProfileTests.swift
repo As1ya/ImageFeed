@@ -9,57 +9,49 @@ import XCTest
 import Foundation
 @testable import Image_Feed
 
-final class ProfilePresenterSpy: ProfilePresenterProtocol {
-    var view: ProfileViewControllerProtocol?
-    var viewDidLoadCalled = false
-    var logoutCalled = false
-    
-    func viewDidLoad() {
-        viewDidLoadCalled = true
-    }
-    
-    func logout() {
-        logoutCalled = true
-    }
-}
-
-final class ProfileViewControllerSpy: ProfileViewControllerProtocol {
-    var presenter: ProfilePresenterProtocol?
-    var updateProfileDetailsCalled = false
-    var updateAvatarCalled = false
-    
-    func updateProfileDetails(profile: Image_Feed.Profile) {
-        updateProfileDetailsCalled = true
-    }
-    
-    func updateAvatar(url: URL) {
-        updateAvatarCalled = true
-    }
-}
+// MARK: - ProfileTests
 
 final class ProfileTests: XCTestCase {
     
-    func testViewControllerCallsViewDidLoad() {
-        // given
-        let viewController = ProfileViewController()
-        let presenter = ProfilePresenterSpy()
+    // MARK: - Properties
+    
+    private var viewController: ProfileViewController!
+    private var presenter: ProfilePresenterSpy!
+    
+    // MARK: - Lifecycle
+    
+    override func setUp() {
+        super.setUp()
+        viewController = ProfileViewController()
+        presenter = ProfilePresenterSpy()
         viewController.configure(presenter)
+    }
+    
+    override func tearDown() {
+        viewController = nil
+        presenter = nil
+        super.tearDown()
+    }
+    
+    // MARK: - Tests
+    
+    func testViewControllerCallsViewDidLoad() {
+        // Given
         
-        // when
+        // When
         _ = viewController.view
         
-        // then
+        // Then
         XCTAssertTrue(presenter.viewDidLoadCalled)
     }
     
     func testLogoutCalled() {
-        // given
-        let presenter = ProfilePresenterSpy()
+        // Given
         
-        // when
+        // When
         presenter.logout()
         
-        // then
+        // Then
         XCTAssertTrue(presenter.logoutCalled)
     }
 }
