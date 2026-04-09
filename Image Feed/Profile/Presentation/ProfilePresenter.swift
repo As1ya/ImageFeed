@@ -1,0 +1,50 @@
+//
+//  ProfilePresenter.swift
+//  Image Feed
+//
+//  Created by Анастасия Федотова on 6.04.2026.
+//
+
+import Foundation
+
+protocol ProfilePresenterProtocol {
+    var view: ProfileViewControllerProtocol? { get set }
+    func viewDidLoad()
+    func logout()
+}
+
+final class ProfilePresenter: ProfilePresenterProtocol {
+    weak var view: ProfileViewControllerProtocol?
+    private var profileImageServiceObserver: NSObjectProtocol?
+
+    func viewDidLoad() {
+        if let profile = ProfileService.shared.profile {
+            view?.updateProfileDetails(profile: profile)
+        }
+        
+        profileImageServiceObserver = NotificationCenter.default
+            .addObserver(
+                forName: ProfileImageService.didChangeNotification,
+                object: nil,
+                queue: .main
+            ) { [weak self] _ in
+                guard let self = self else { return }
+                self.updateAvatar()
+            }
+        
+        updateAvatar()
+    }
+    
+    private func updateAvatar() {
+        guard
+            let profileImageURL = ProfileImageService.shared.avatarURL,
+            let url = URL(string: profileImageURL)
+        else { return }
+        
+        view?.updateAvatar(url: url)
+    }
+
+    func logout() {
+        ProfileLogoutService.shared.logout()
+    }
+}

@@ -126,6 +126,7 @@
                                 </connections>
                             </scrollView>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="OGm-Nm-bVW" userLabel="Back Button">
+                                <accessibility key="accessibilityConfiguration" identifier="nav back button white"/>
                                 <rect key="frame" x="8" y="56" width="48" height="48"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="48" id="Ly7-ka-DiZ"/>
@@ -206,6 +207,7 @@
                                 </constraints>
                             </imageView>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Cfj-JM-1Fm" userLabel="Login Button">
+                                <accessibility key="accessibilityConfiguration" identifier="Authenticate"/>
                                 <rect key="frame" x="24" y="677" width="366" height="48"/>
                                 <color key="backgroundColor" name="YP White"/>
                                 <constraints>
@@ -246,12 +248,13 @@
         <!--Web View View Controller-->
         <scene sceneID="bt8-ZP-S2S">
             <objects>
-                <viewController id="ane-oF-ad4" customClass="WebViewViewController" customModule="Image_Feed" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="WebViewViewController" id="ane-oF-ad4" customClass="WebViewViewController" customModule="Image_Feed" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="6B1-Cf-lr1">
                         <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <wkWebView contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Xfn-lt-9l1">
+                                <accessibility key="accessibilityConfiguration" identifier="UnsplashWebView"/>
                                 <rect key="frame" x="0.0" y="150" width="414" height="746"/>
                                 <color key="backgroundColor" name="YP White"/>
                                 <wkWebViewConfiguration key="configuration">

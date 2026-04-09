@@ -55,15 +55,11 @@ final class ImagesListCell: UITableViewCell {
     func setIsLiked(_ isLiked: Bool) {
         let likeImage = isLiked ? UIImage(resource: .favouritesActive) : UIImage(resource: .favouritesNoActive)
         likeButton.setImage(likeImage, for: .normal)
+        likeButton.accessibilityIdentifier = isLiked ? "like button on" : "like button off"
     }
     
     func setIsLoading(_ isLoading: Bool) {
-        if isLoading {
-            activityIndicator.startAnimating()
-            likeButton.isHidden = true
-        } else {
-            activityIndicator.stopAnimating()
-            likeButton.isHidden = false
-        }
+        isLoading ? activityIndicator.startAnimating() : activityIndicator.stopAnimating()
+        likeButton.isHidden = isLoading
     }
 }

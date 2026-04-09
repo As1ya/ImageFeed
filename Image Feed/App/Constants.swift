@@ -2,8 +2,9 @@
 //  Constants.swift
 //  Image Feed
 //
-//  Created by Анастасия Федотова on 17.03.2026.
+//  Created by Анастасия Федотова on 09.04.2026.
 //
+
 import Foundation
 
 enum Constants {
@@ -14,4 +15,5 @@ enum Constants {
     static let accessScope = "public+read_user+write_likes"
     
     static let defaultBaseURLString = "https://api.unsplash.com"
+    static let unsplashAuthorizeURLString = "https://unsplash.com/oauth/authorize"
 }

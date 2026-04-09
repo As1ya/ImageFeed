@@ -8,16 +8,20 @@
 import UIKit
 import WebKit
 
-enum WebViewConstants {
-    static let unsplashAuthorizeURLString = "https://unsplash.com/oauth/authorize"
-}
-
 protocol WebViewViewControllerDelegate: AnyObject {
     func webViewViewController(_ vc: WebViewViewController, didAuthenticateWithCode code: String)
     func webViewViewControllerDidCancel(_ vc: WebViewViewController)
 }
 
-final class WebViewViewController: UIViewController {
+public protocol WebViewViewControllerProtocol: AnyObject {
+    var presenter: WebViewPresenterProtocol? { get set }
+    func load(request: URLRequest)
+    func setProgressValue(_ newValue: Float)
+    func setProgressHidden(_ isHidden: Bool)
+}
+
+final class WebViewViewController: UIViewController, WebViewViewControllerProtocol {
+    var presenter: WebViewPresenterProtocol?
     
     // MARK: - Properties
     
@@ -55,15 +59,18 @@ final class WebViewViewController: UIViewController {
         context: UnsafeMutableRawPointer?
     ) {
         if keyPath == #keyPath(WKWebView.estimatedProgress) {
-            updateProgress()
+            presenter?.didUpdateProgressValue(webView.estimatedProgress)
         } else {
             super.observeValue(forKeyPath: keyPath, of: object, change: change, context: context)
         }
     }
     
-    private func updateProgress() {
-        progressView.progress = Float(webView.estimatedProgress)
-        progressView.isHidden = fabs(webView.estimatedProgress - 1.0) <= 0.0001
+    func setProgressValue(_ newValue: Float) {
+        progressView.progress = newValue
+    }
+
+    func setProgressHidden(_ isHidden: Bool) {
+        progressView.isHidden = isHidden
     }
 
     // MARK: - Lifecycle
@@ -72,46 +79,19 @@ final class WebViewViewController: UIViewController {
         super.viewDidLoad()
 
         webView.navigationDelegate = self
-        loadAuthView()
-        progressView.progress = 0
-        progressView.isHidden = false
+        presenter?.viewDidLoad()
     }
 
     // MARK: - Private methods
 
-    private func loadAuthView() {
-        guard var urlComponents = URLComponents(string: WebViewConstants.unsplashAuthorizeURLString) else {
-            print("Не удалось создать URLComponents")
-            return
-        }
-
-        urlComponents.queryItems = [
-            URLQueryItem(name: "client_id", value: Constants.accessKey),
-            URLQueryItem(name: "redirect_uri", value: Constants.redirectURI),
-            URLQueryItem(name: "response_type", value: "code"),
-            URLQueryItem(name: "scope", value: Constants.accessScope)
-        ]
-
-        guard let url = urlComponents.url else {
-            print("Не удалось сформировать URL")
-            return
-        }
-
-        let request = URLRequest(url: url)
+    func load(request: URLRequest) {
         webView.load(request)
     }
 
     private func code(from navigationAction: WKNavigationAction) -> String? {
-        if
-            let url = navigationAction.request.url,
-            let components = URLComponents(string: url.absoluteString),
-            components.path == "/oauth/authorize/native",
-            let items = components.queryItems,
-            let codeItem = items.first(where: { $0.name == "code" })
-        {
-            return codeItem.value
+        if let url = navigationAction.request.url {
+            return presenter?.code(from: url)
         }
-
         return nil
     }
 
